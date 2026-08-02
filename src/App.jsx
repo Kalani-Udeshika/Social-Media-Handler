@@ -4,7 +4,6 @@ import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
 import './App.css'
 import { generateClient } from 'aws-amplify/data';
-//import type { Schema } from '../amplify/data/resource';
 
 const client = generateClient();
 
