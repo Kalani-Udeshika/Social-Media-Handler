@@ -146,9 +146,9 @@ function App() {
             <span className="tip-icon">🌱</span>
             <h3>Grow something beautiful</h3>
             <p>Great content helps your orchid business bloom.</p>
-            {/* <button onClick={() => navigateTo('Generate Content')}>
+            <button onClick={() => navigateTo('Generate Content')}>
               Create content <span>→</span>
-            </button> */}
+            </button>
           </div>
 
           {/* <div className="profile">
