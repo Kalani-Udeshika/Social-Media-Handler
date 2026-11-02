@@ -146,9 +146,9 @@ function App() {
             <span className="tip-icon">🌱</span>
             <h3>Grow something beautiful</h3>
             <p>Great content helps your orchid business bloom.</p>
-            <button onClick={() => navigateTo('Generate Content')}>
+            {/* <button onClick={() => navigateTo('Generate Content')}>
               Create content <span>→</span>
-            </button>
+            </button> */}
           </div>
 
           {/* <div className="profile">
@@ -215,7 +215,7 @@ function App() {
                     Discover creative ideas, create beautiful posts and help
                     your orchid business bloom online.
                   </p>
-                   {/* <div className="welcome-actions">
+                   <div className="welcome-actions">
                     <button
                       className="primary-button"
                       onClick={() => navigateTo('Generate Content')}
@@ -228,7 +228,7 @@ function App() {
                     >
                       Explore inspiration <span>→</span>
                     </button>
-                  </div> */}
+                  </div>
                   <div className="welcome-note">
                     <span>✿</span> Made for orchid lovers and growers
                   </div>
