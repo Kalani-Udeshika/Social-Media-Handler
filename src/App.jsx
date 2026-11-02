@@ -151,14 +151,14 @@ function App() {
             </button> */}
           </div>
 
-          {/* <div className="profile">
+          <div className="profile">
             <div className="profile-avatar">O</div>
             <div className="profile-details">
               <strong>Orchid Studio</strong>
               <small>Content workspace</small>
             </div>
             <span className="profile-menu">•••</span>
-          </div> */}
+          </div>
         </div>
       </aside>
 
