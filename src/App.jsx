@@ -216,12 +216,12 @@ function App() {
                     your orchid business bloom online.
                   </p>
                    <div className="welcome-actions">
-                    <button
+                    {/* <button
                       className="primary-button"
                       onClick={() => navigateTo('Generate Content')}
                     >
                       <span>✦</span> Generate content
-                    </button>
+                    </button> */}
                     <button
                       className="secondary-button"
                       onClick={() => navigateTo('Images')}
