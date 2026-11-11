@@ -1,17 +1,25 @@
-import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
 
-/*== STEP 1 ===============================================================
-The section below creates a Todo database table with a "content" field. Try
-adding a new "isDone" field as a boolean. The authorization rule below
-specifies that any unauthenticated user can "create", "read", "update", 
-and "delete" any "Todo" records.
-=========================================================================*/
+import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { generateOrchidContent } from "../functions/generate-orchid-content/resource";
+
 const schema = a.schema({
+  // Keep the existing Todo model
   Todo: a
     .model({
       content: a.string(),
     })
     .authorization((allow) => [allow.guest()]),
+
+  // New query to invoke the existing Lambda
+  generateOrchidContent: a
+    .query()
+    .arguments({
+      viralContents: a.json().required(),
+      userIdeas: a.json().required(),
+    })
+    .returns(a.json())
+    .authorization((allow) => [allow.guest()])
+    .handler(a.handler.function(generateOrchidContent)),
 });
 
 export type Schema = ClientSchema<typeof schema>;
@@ -19,9 +27,35 @@ export type Schema = ClientSchema<typeof schema>;
 export const data = defineData({
   schema,
   authorizationModes: {
-    defaultAuthorizationMode: 'identityPool',
+    defaultAuthorizationMode: "identityPool",
   },
 });
+
+
+// import { type ClientSchema, a, defineData } from '@aws-amplify/backend';
+
+// /*== STEP 1 ===============================================================
+// The section below creates a Todo database table with a "content" field. Try
+// adding a new "isDone" field as a boolean. The authorization rule below
+// specifies that any unauthenticated user can "create", "read", "update", 
+// and "delete" any "Todo" records.
+// =========================================================================*/
+// const schema = a.schema({
+//   Todo: a
+//     .model({
+//       content: a.string(),
+//     })
+//     .authorization((allow) => [allow.guest()]),
+// });
+
+// export type Schema = ClientSchema<typeof schema>;
+
+// export const data = defineData({
+//   schema,
+//   authorizationModes: {
+//     defaultAuthorizationMode: 'identityPool',
+//   },
+// });
 
 /*== STEP 2 ===============================================================
 Go to your frontend source code. From your client-side code, generate a
