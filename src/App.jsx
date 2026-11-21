@@ -1,8 +1,9 @@
-import { useState } from 'react';
+//import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
 import './App.css';
 
-const client = generateClient();
+//const client = generateClient();
 
 const orchidImages = {
   hero: 'https://images.unsplash.com/photo-1566907225472-514a9a0d5f50?auto=format&fit=crop&w=1400&q=85',
@@ -57,6 +58,8 @@ const navigation = [
 ];
 
 function App() {
+  
+  const client = useMemo(() => generateClient(), []);
   const [activePage, setActivePage] = useState('Home');
   const [search, setSearch] = useState('');
   const [topic, setTopic] = useState('');
@@ -64,6 +67,9 @@ function App() {
   const [generatedText, setGeneratedText] = useState('');
   const [savedItems, setSavedItems] = useState([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [backendResult, setBackendResult] = useState(null);
+  const [selectedIdea, setSelectedIdea] = useState(null);
 
   const filteredContent = sampleContent.filter((item) => {
     const matchesPage =
@@ -79,18 +85,132 @@ function App() {
     return matchesPage && matchesSearch;
   });
 
-  function handleGenerate() {
-    if (!topic.trim()) {
-      setGeneratedText('Please enter a topic before generating content.');
-      return;
+
+  // function handleGenerate() {
+  //   if (!topic.trim()) {
+  //     setGeneratedText('Please enter a topic before generating content.');
+  //     return;
+  //   }
+
+  //   // Sample output for the UI preview.
+  //   // We will connect this button to your AWS Lambda function next.
+  //   setGeneratedText(
+  //     `🌸 ${topic.trim()} 🌸\n\nBring more beauty to your day with our stunning orchids! Discover the colours, elegance and natural charm that make every bloom special.\n\n✨ Find your favourite orchid today!\n\n#Orchids #OrchidLovers #FlowerBusiness`
+  //   );
+  // }
+
+//get user inut and send it to the backend for processing
+async function handleGenerate() {
+  if (!topic.trim()) {
+    setGeneratedText('Please enter a topic before generating content.');
+    return;
+  }
+
+  setIsGenerating(true);
+  setGeneratedText('');
+  setBackendResult(null);
+
+  try {
+    const { data, errors } = await client.queries.generateOrchidContent({
+      // viralContents: [],
+      // userIdeas: [
+      //   {
+      //     content: topic.trim(),
+      //   },
+      // ],
+      viralContents: JSON.stringify([]),
+      userIdeas: JSON.stringify([
+        {
+          content: topic.trim(),
+        },
+      ]),
+    });
+
+    // if (errors?.length) {
+    //   throw new Error(errors.map((error) => error.message).join(', '));
+    // }
+
+    // if (!data?.success) {
+    //   throw new Error(data?.error || 'Content generation failed.');
+    // }
+    console.log("Backend data:", data);
+    console.log("Backend errors:", errors);
+
+    if (errors?.length) {
+      throw new Error(errors.map((error) => error.message).join(', '));
     }
 
-    // Sample output for the UI preview.
-    // We will connect this button to your AWS Lambda function next.
-    setGeneratedText(
-      `🌸 ${topic.trim()} 🌸\n\nBring more beauty to your day with our stunning orchids! Discover the colours, elegance and natural charm that make every bloom special.\n\n✨ Find your favourite orchid today!\n\n#Orchids #OrchidLovers #FlowerBusiness`
-    );
+    // if (!data?.success) {
+    //   throw new Error(data?.error || 'Content generation failed.');
+    // }
+
+    // setBackendResult(data);
+    const result =
+      typeof data === 'string' ? JSON.parse(data) : data;
+
+    if (!result?.success) {
+      throw new Error(result?.error || 'Content generation failed.');
+    }
+
+    setBackendResult(result);
+    setGeneratedText('Content generated successfully!');
+
+
+    // correct one
+
+  // } catch (error) {
+  //   console.error('Backend request failed:', error);
+  //   setGeneratedText(
+  //     error instanceof Error ? error.message : 'An unexpected error occurred.'
+  //   );
+
+  // } finally {
+
+  //  temporarily set 
+
+  } catch (error) {
+  console.error('Backend request failed:', error);
+
+  setGeneratedText(
+    'API credits unavailable. Showing sample ranking results.'
+  );
+
+  setBackendResult({
+    success: true,
+    combinedRanking: [
+      {
+        id: 'sample-1',
+        content: 'Share simple tips for caring for orchids during hot weather.',
+        source: 'ai',
+        rank: 1,
+        totalScore: 9.2,
+        reason: 'Useful seasonal content that can attract orchid lovers.',
+      },
+      {
+        id: 'sample-2',
+        content: 'Show beautiful orchid varieties available for sale.',
+        source: 'user',
+        rank: 2,
+        totalScore: 8.8,
+        reason: 'Product-focused content that may attract potential buyers.',
+      },
+      {
+        id: 'sample-3',
+        content: 'Create a guide about watering orchids correctly.',
+        source: 'ai',
+        rank: 3,
+        totalScore: 8.5,
+        reason: 'Educational content that encourages audience engagement.',
+      },
+    ],
+  });
+
+} finally {
+  // temporarily set 
+    setIsGenerating(false);
   }
+}
+
 
   function toggleSaved(id) {
     setSavedItems((previous) =>
@@ -311,8 +431,21 @@ function App() {
                   rows={5}
                 />
 
-                <button className="primary-button generate-button" onClick={handleGenerate}>
+                {/* <button className="primary-button generate-button" onClick={handleGenerate}>
                   <span>✦</span> Generate {contentType.toLowerCase()}
+                </button> */}
+
+                 
+                 {/* show a loading state while the contentis being generated */}
+                <button
+                  className="primary-button generate-button"
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                >
+                  <span>✦</span>
+                  {isGenerating
+                    ? 'Generating...'
+                    : `Generate ${contentType.toLowerCase()}`}
                 </button>
 
                 {generatedText && (
@@ -335,6 +468,48 @@ function App() {
                       Preview only — AI generation will be connected to AWS
                       Lambda in the next step.
                     </small>
+                  </div>
+                )}
+              
+                  {backendResult?.combinedRanking?.length > 0 && (
+                    <div className="ranked-ideas-section">
+
+                      <h2>Ranked Ideas</h2>
+
+                      <p>
+                        Choose your favourite idea from the ranked results.
+                      </p>
+
+                      {backendResult.combinedRanking.map((item) => (
+                        <div className="ranked-idea-card" key={item.id}>
+
+                          <div className="ranked-idea-header">
+                            <strong>Rank #{item.rank}</strong>
+                            <span>Score: {item.totalScore}/10</span>
+                          </div>
+
+                          <p>{item.content}</p>
+
+                          <small>
+                            Source: {item.source}
+                          </small>
+
+                          <p>{item.reason}</p>
+
+                          <button
+                            onClick={() => setSelectedIdea(item)}
+                            //className="select-idea-button"
+                            className={`select-idea-button ${
+                              selectedIdea?.id === item.id ? 'selected' : ''
+                            }`}
+                           >
+                            {selectedIdea?.id === item.id
+                            ? 'Selected ✓'
+                            : 'Select this idea'}
+                          </button>
+
+                        </div>
+                      ))}
                   </div>
                 )}
               </div>
@@ -441,6 +616,7 @@ function App() {
     </div>
   );
 }
+
 
 export default App;
 
@@ -565,7 +741,7 @@ export default App;
 //       <div className="ticks"></div>
 //       <section id="spacer"></section>
 //     </>
-//   )
+//   );
 // }
+//export default App
 
-// export default App

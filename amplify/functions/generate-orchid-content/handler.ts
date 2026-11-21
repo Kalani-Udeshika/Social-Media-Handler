@@ -245,7 +245,7 @@ const combinedContents = [
 
 console.log("Total combined contents:", combinedContents.length);
 
-// CALL 4: Ask OpenAI to evaluate all content together.
+// CALL 3: Generate the combined ranking.
 
 const generatedRanking = await callOpenAI(
   `
@@ -256,7 +256,6 @@ const generatedRanking = await callOpenAI(
 
   Content:
   ${JSON.stringify(combinedContents)}
-
   Give each item a score from 1 to 10 for:
 
   1. reach: Potential audience reach
@@ -410,7 +409,7 @@ return {
           ? error.message
           : "An unknown error occurred.",
     };
-  };
+  }
 };
 
 
